@@ -1,0 +1,11 @@
+{
+    "voicevox": {
+        "host": "127.0.0.1",
+        "port": 50021,
+        "speaker_id": 3
+    },
+    "server": {
+        "ws_port": 8080,
+        "http_port": 8000
+    }
+}
