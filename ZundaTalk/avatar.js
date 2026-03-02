@@ -1,10 +1,27 @@
 let ws = null;
+const layerBase = document.getElementById('layer-base');
 const layerMouth = document.getElementById('layer-mouth');
 const layerEyes = document.getElementById('layer-eyes');
 let audioElement = null;
 let timeline = [];
 
-// 用意した画像のファイル名
+// ── 現在の表情 ──
+let currentEmotion = 'normal';
+
+// ── 表情ごとの画像パス ──
+const EXPRESSIONS = ['normal', 'happy', 'angry', 'sad', 'surprised'];
+
+function getBasePath(emotion) {
+    return `Images/base_${emotion}/base_${emotion}.png`;
+}
+
+function getEyeOpenPath(emotion) {
+    return `Images/base_${emotion}/base_${emotion}_eye.png`;
+}
+
+const CLOSED_EYE_PATH = 'Images/closed_eye.png';
+
+// 用意した口画像のファイル名
 const mouthImages = {
     'a': 'Images/mouth_a.png',
     'i': 'Images/mouth_i.png',
@@ -12,11 +29,6 @@ const mouthImages = {
     'e': 'Images/mouth_e.png',
     'o': 'Images/mouth_o.png',
     'n': 'Images/mouth_n.png'
-};
-
-const eyeImages = {
-    'open': 'Images/eyes_open.png',
-    'closed': 'Images/eyes_closed.png'
 };
 
 ws = new WebSocket('ws://localhost:8080');
@@ -30,7 +42,7 @@ ws.onmessage = (event) => {
 
     if (data.type === "play_voice") {
         audioQueue.push(data);
-        
+
         playNext();
     }
 };
@@ -40,10 +52,15 @@ function playNext() {
         return;
     }
 
-    isPlaying = true; 
+    isPlaying = true;
     const data = audioQueue.shift();
 
     syncChannel.postMessage({ action: "show", text: data.text });
+
+    // ── 表情の切り替え ──
+    if (data.emotion && EXPRESSIONS.includes(data.emotion)) {
+        setEmotion(data.emotion);
+    }
 
     audioElement = new Audio("data:audio/wav;base64," + data.audio_b64);
 
@@ -67,6 +84,16 @@ function playNext() {
     });
 
     requestAnimationFrame(updateLipSync);
+}
+
+// ── 表情切り替え ──
+function setEmotion(emotion) {
+    if (currentEmotion === emotion) return;
+
+    currentEmotion = emotion;
+    layerBase.src = getBasePath(emotion);
+    layerEyes.src = getEyeOpenPath(emotion);
+    console.log(`[表情] ${emotion} に切り替え`);
 }
 
 function buildTimeline(query) {
@@ -120,18 +147,20 @@ function updateLipSync() {
     }
 
     layerMouth.src = mouthImages[currentMouth] || mouthImages['n'];
-    
+
     requestAnimationFrame(updateLipSync);
 }
 
+// ── まばたき（現在の表情に対応）──
 function blink() {
     if (!layerEyes) return;
 
-    // 目を閉じる
-    layerEyes.src = eyeImages['closed'];
+    // 目を閉じる（共通画像）
+    layerEyes.src = CLOSED_EYE_PATH;
 
     setTimeout(() => {
-        layerEyes.src = eyeImages['open'];
+        // 目を開く（現在の表情に対応した目の画像）
+        layerEyes.src = getEyeOpenPath(currentEmotion);
     }, 150);
 
     const nextBlinkTime = Math.random() * 3000 + 3000;

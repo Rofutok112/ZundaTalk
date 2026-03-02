@@ -17,6 +17,7 @@ VV_PORT = _config["voicevox"]["port"]
 SPEAKER_ID = _config["voicevox"]["speaker_id"]
 WS_PORT = _config["server"]["ws_port"]
 HTTP_PORT = _config["server"]["http_port"]
+EMOTION_ENABLED = _config.get("emotion", {}).get("enabled", False)
 
 
 def is_vv_running(host, port):
@@ -25,7 +26,15 @@ def is_vv_running(host, port):
 
 
 async def main():
-    handler = server.make_handler(VV_HOST, VV_PORT, SPEAKER_ID)
+    # 感情分析の初期化
+    emotion_analyzer = None
+    if EMOTION_ENABLED:
+        from emotion_analyzer import EmotionAnalyzer
+        emotion_analyzer = EmotionAnalyzer()
+    else:
+        print("[感情分析] 無効 (config.json で emotion.enabled = true にすると有効化)")
+
+    handler = server.make_handler(VV_HOST, VV_PORT, SPEAKER_ID, emotion_analyzer)
     async with websockets.serve(handler, "0.0.0.0", WS_PORT):
         print(f"WebSocketサーバーがポート{WS_PORT}で起動しました...")
         print("接続を待機中...")

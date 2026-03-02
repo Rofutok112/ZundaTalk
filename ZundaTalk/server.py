@@ -46,7 +46,7 @@ def generate_voice(text, vv_host, vv_port, speaker_id):
     return audio_b64, query_data
 
 
-def make_handler(vv_host, vv_port, speaker_id):
+def make_handler(vv_host, vv_port, speaker_id, emotion_analyzer=None):
     connected_clients = set()
 
     async def handler(websocket):
@@ -57,11 +57,18 @@ def make_handler(vv_host, vv_port, speaker_id):
             async for message in websocket:
                 audio_b64, query_data = generate_voice(message, vv_host, vv_port, speaker_id)
 
+                # 感情推定
+                if emotion_analyzer is not None:
+                    emotion = emotion_analyzer.analyze(message)
+                else:
+                    emotion = "normal"
+
                 reply_data = {
                     "type": "play_voice",
                     "text": message,
                     "audio_b64": audio_b64,
-                    "query": query_data
+                    "query": query_data,
+                    "emotion": emotion,
                 }
 
                 for client in connected_clients:
