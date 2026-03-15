@@ -5,8 +5,11 @@
         "speaker_id": 3
     },
     "server": {
-        "ws_port": 8080,
         "http_port": 8000
+    },
+    "input": {
+        "mode": "chrome",
+        "manual_ws_port": 8080
     },
     "emotion": {
         "enabled": true
