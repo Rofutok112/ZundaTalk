@@ -1,6 +1,9 @@
 # ZundaTalk
 
-VOICEVOXを使用したブラウザアバターとOBS用字幕オーバーレイ。
+VOICEVOXを使用したブラウザアバターとOBS用字幕オーバーレイ。  
+
+利用にはVOICEVOXが必要です。 
+https://voicevox.hiroshiba.jp/
 
 ## 機能
 - VOICEVOXで音声を生成
