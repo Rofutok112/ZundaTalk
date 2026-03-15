@@ -3,7 +3,12 @@
 VOICEVOXを使用したブラウザアバターとOBS用字幕オーバーレイ。  
 
 利用にはVOICEVOXが必要です。 
-https://voicevox.hiroshiba.jp/
+https://voicevox.hiroshiba.jp/  
+
+より高精度な音声認識を使いたい場合は  
+[YukariWhisper](https://github.com/tyapa0/YukariWhisper) を使用してください。
+
+Thanks to @tyapa0
 
 ## 機能
 - VOICEVOXで音声を生成
